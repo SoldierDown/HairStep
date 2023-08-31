@@ -30,12 +30,13 @@ def load_point_ids(mesh_file):
     vert_ids = np.array(vertex_data).astype(int)
 
     return vert_ids
-
+import os
 class OptLandmark(nn.Module):
     def __init__(self, lmk_gt_path, input_img_path, width=512):
+        print(os.getcwd())
         super(OptLandmark, self).__init__()
-        self.head_obj_path = '/data2/paul/hair/Dataset/head_model.obj'
-        self.landmark_id_path = '/data2/paul/hair/Dataset/landmark_id_uschair.obj'
+        self.head_obj_path = '.\data\head_model.obj'
+        self.landmark_id_path = '.\data\landmark_id_uschair.obj'
         self.input_img_path = input_img_path
 
         self.width = width
