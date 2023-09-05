@@ -130,8 +130,9 @@ def recon3D_from_hairstep(opt):
 
             test_data = {'hairstep': hairstep, 'calib':calib}
 
-            gen_mesh_real(opt, occ_net, cuda, test_data, mesh_path)
-            export_hair_real(orien_net, cuda, test_data, mesh_path, hair3D_path)
+            # gen_mesh_real(opt, occ_net, cuda, test_data, mesh_path)
+            # export_hair_real(orien_net, cuda, test_data, mesh_path, hair3D_path)
+            export_hair_real(orien_net, cuda, test_data, hair3D_path)
 
 if __name__ == '__main__':
     opt = BaseOptions().parse()

@@ -27,20 +27,40 @@ All data of HiSa & HiDa is hosted on Google Drive:
 
 ## Installation
   ```
-git clone --recursive https://github.com/GAP-LAB-CUHK-SZ/HairStep.git
-
+git clone https://github.com/SoldierDown/HairStep.git
 cd HairStep
 
-conda env create -f environment.yml
-conda activate hairstep
+conda create -n hairstep36 python=3.6 -y
+conda activate hairstep36
 
-pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html
+conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia -y
+conda install -c conda-forge opencv -y
+conda install -c conda-forge tqdm -y
+conda install -c anaconda scikit-image -y
 
-pip install -r requirements.txt
+conda install -c conda-forge segment-anything -y
+python -m pip install segment-anything
 
-cd external/3DDFA_V2
-sh ./build.sh
-cd ../../
+conda install -c conda-forge matplotlib -y
+conda install -c anaconda cython -y
+conda install -c open3d-admin open3d -y
+conda install -c conda-forge trimesh -y
+
+
+pip install opencv-python
+pip install tqdm
+pip install scikit-image
+pip install segment-anything
+pip install matplotlib
+pip install Cython
+pip install open3d
+pip install trimesh
+pip install rtree
+
+cd .\external\3DDFA_V2\FaceBoxes\utils\
+python .\build.py build_ext --inplace
+cd ..\..\Sim3DR\
+python .\setup.py build_ext --inplace
   ```
 Code is tested on torch1.9.0, CUDA11.1, Ubuntu 20.04 LTS.
 
@@ -51,10 +71,10 @@ Download the checkpoint of [SAM](https://dl.fbaipublicfiles.com/segment_anything
 
 Download checkpoints of [3D networks](https://drive.google.com/file/d/1-akuukaYYtJDta24AAqVdgUOGte4EmQf/view?usp=drive_link) and put them to ./checkpoints/recon3D/.
   ```
-  CUDA_VISIBLE_DEVICES=0 python -m scripts.img2hairstep
-  CUDA_VISIBLE_DEVICES=0 python scripts/get_lmk.py
-  CUDA_VISIBLE_DEVICES=0 python -m scripts.opt_cam
-  CUDA_VISIBLE_DEVICES=0 python -m scripts.recon3D
+  python -m scripts.img2hairstep
+  python scripts/get_lmk.py
+  python -m scripts.opt_cam
+  python -m scripts.recon3D
   ```
 Results will be saved in ./results/real_imgs/.
 
