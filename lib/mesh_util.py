@@ -36,10 +36,13 @@ def reconstruction(net, cuda, calib_tensor,
         return pred.detach().cpu().numpy()
 
     # Then we evaluate the grid
-    if use_octree:
-        sdf = eval_grid_octree(coords, eval_func, num_samples=num_samples)
-    else:
-        sdf = eval_grid(coords, eval_func, num_samples=num_samples)
+    # if use_octree:
+    #     sdf = eval_grid_octree(coords, eval_func, num_samples=num_samples)
+    # else:
+    #     sdf = eval_grid(coords, eval_func, num_samples=num_samples)
+
+    # sdf = eval_grid_octree(coords, eval_func, num_samples=num_samples)
+    sdf = eval_grid(coords, eval_func, num_samples=num_samples)
 
     # Finally we do marching cubes
     try:
@@ -51,7 +54,49 @@ def reconstruction(net, cuda, calib_tensor,
     except:
         print('error cannot marching cubes')
         return -1
-    
+
+def get_sdf(opt, net, cuda, data, save_path, use_octree=True):
+    image_tensor = data['hairstep'].to(device=cuda).unsqueeze(0)
+    calib_tensor = data['calib'].to(device=cuda).unsqueeze(0)
+
+    net.filter(image_tensor)
+
+    b_min = np.array([-0.3, 1.0, -0.3])
+    b_max = np.array([0.3, 2.0, 0.3])
+
+    return reconstruct_sdf(net, cuda, calib_tensor, opt.resolution, b_min, b_max, use_octree=use_octree)
+
+def reconstruct_sdf(net, cuda, calib_tensor,
+                   resolution, b_min, b_max,
+                   use_octree=False, num_samples=10000, transform=None):
+    '''
+    Reconstruct meshes from sdf predicted by the network.
+    :param net: a BasePixImpNet object. call image filter beforehead.
+    :param cuda: cuda device
+    :param calib_tensor: calibration tensor
+    :param resolution: resolution of the grid cell
+    :param b_min: bounding box corner [x_min, y_min, z_min]
+    :param b_max: bounding box corner [x_max, y_max, z_max]
+    :param use_octree: whether to use octree acceleration
+    :param num_samples: how many points to query each gpu iteration
+    :return: marching cubes results.
+    '''
+    # First we create a grid by resolution
+    # and transforming matrix for grid coordinates to real world xyz
+    coords, mat = create_grid(resolution, resolution, resolution,
+                              b_min, b_max, transform=transform)
+
+    # Then we define the lambda function for cell evaluation
+    def eval_func(points):
+        points = np.expand_dims(points, axis=0)
+        samples = torch.from_numpy(points).to(device=cuda).float()
+        net.query(samples, calib_tensor)
+        pred = net.get_preds()[0][0]
+        return pred.detach().cpu().numpy()
+
+    sdf = eval_grid(coords, eval_func, num_samples=num_samples)
+    return sdf
+
 def gen_mesh_real(opt, net, cuda, data, save_path, use_octree=True):
     image_tensor = data['hairstep'].to(device=cuda).unsqueeze(0)
     calib_tensor = data['calib'].to(device=cuda).unsqueeze(0)

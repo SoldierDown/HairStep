@@ -33,7 +33,6 @@ def load_point_ids(mesh_file):
 import os
 class OptLandmark(nn.Module):
     def __init__(self, lmk_gt_path, input_img_path, width=512):
-        print(os.getcwd())
         super(OptLandmark, self).__init__()
         self.head_obj_path = '.\data\head_model.obj'
         self.landmark_id_path = '.\data\landmark_id_uschair.obj'

@@ -122,8 +122,8 @@ def recon3D_from_hairstep(opt):
             calib_path = os.path.join(calib_dir, item[:-3] + 'npy')
             depth_path = os.path.join(depth_dir, item[:-3] + 'npy')
 
-            if os.path.exists(hair3D_path):
-                continue
+            # if os.path.exists(hair3D_path):
+            #     continue
 
             calib = load_calib(calib_path)
             hairstep = load_hairstep(strand_path, depth_path, seg_path, opt.loadSize)
@@ -132,7 +132,11 @@ def recon3D_from_hairstep(opt):
 
             # gen_mesh_real(opt, occ_net, cuda, test_data, mesh_path)
             # export_hair_real(orien_net, cuda, test_data, mesh_path, hair3D_path)
-            export_hair_real(orien_net, cuda, test_data, hair3D_path)
+            
+            # export_hair_real_no_mesh(orien_net, cuda, test_data, hair3D_path)
+
+            sdf = get_sdf(opt, occ_net, cuda, test_data, mesh_path)
+            export_hair_real_with_sdf(orien_net, cuda, test_data, sdf, hair3D_path)
 
 if __name__ == '__main__':
     opt = BaseOptions().parse()
