@@ -61,6 +61,7 @@ cd .\external\3DDFA_V2\FaceBoxes\utils\
 python .\build.py build_ext --inplace
 cd ..\..\Sim3DR\
 python .\setup.py build_ext --inplace
+cd ..\..\.. 
   ```
 Code is tested on torch1.9.0, CUDA11.1, Ubuntu 20.04 LTS.
 

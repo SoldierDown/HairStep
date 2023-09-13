@@ -140,7 +140,7 @@ def get_sdf_value(sdf, x):
 
     return c
 
-def save_strands_with_sdf(strands, sdf, outputpath, err=0.3, is_eval=False):
+def save_strands_with_sdf(strands, sdf, outputpath, render_path, err=0.3, is_eval=False):
     #for coarse mesh /1000.0
     # if is_eval:
     #     mesh.vertices = mesh.vertices/1000.0
@@ -186,7 +186,7 @@ def save_strands_with_sdf(strands, sdf, outputpath, err=0.3, is_eval=False):
                 maxs = cur_sdf
             if cur_sdf < mins:
                 mins = cur_sdf
-            if cur_sdf > 0.:
+            if cur_sdf == 1.:
                 current_pc_all_valid.append(strands[i][j])
                 num_pt += 1
             else:
@@ -205,15 +205,14 @@ def save_strands_with_sdf(strands, sdf, outputpath, err=0.3, is_eval=False):
             lines.append([sline + j, sline + j + 1])
         sline += lst_num_pt[i]
     
-    # file_name = "hair"
-    # with open(file_name, "w") as file:
-    #     file.write('{}\n'.format(strands.shape[0]))
-    #     for i in range(strands.shape[0]):
-    #         if lst_num_pt[i]<min_num_pts:
-    #             continue
-    #         file.write('{}\n'.format(lst_num_pt[i]))
-    #         for j in range(lst_num_pt[i]):
-    #             file.write('{} {} {}\n'.format(lst_pc_all_valid[i][j][0], lst_pc_all_valid[i][j][1], lst_pc_all_valid[i][j][2]))
+    with open(render_path, "w") as file:
+        file.write('{}\n'.format(strands.shape[0]))
+        for i in range(strands.shape[0]):
+            if lst_num_pt[i]<min_num_pts:
+                continue
+            file.write('{}\n'.format(lst_num_pt[i]))
+            for j in range(lst_num_pt[i]):
+                file.write('{} {} {}\n'.format(lst_pc_all_valid[i][j][0], lst_pc_all_valid[i][j][1], lst_pc_all_valid[i][j][2]))
 
 
     line_set = o3d.geometry.LineSet(points=o3d.utility.Vector3dVector(np.asarray(pc_all_valid)), lines=o3d.utility.Vector2iVector(lines))
@@ -281,7 +280,7 @@ def export_hair_real_no_mesh(net, cuda, data, save_path):
     strands = hair_synthesis(net, cuda, root_tensor, calib_tensor, num_sample=100, hair_unit=0.006)
     save_strands(strands, save_path, 0.3)
 
-def export_hair_real_with_sdf(net, cuda, data, sdf, save_path):
+def export_hair_real_with_sdf(net, cuda, data, sdf, save_path, render_path):
     image_tensor = data['hairstep'].to(device=cuda).unsqueeze(0)
     calib_tensor = data['calib'].to(device=cuda).unsqueeze(0)
     root_tensor = torch.from_numpy(get_hair_root()).to(device=cuda).float().unsqueeze(0)
@@ -289,4 +288,4 @@ def export_hair_real_with_sdf(net, cuda, data, sdf, save_path):
     net.filter(image_tensor)
 
     strands = hair_synthesis(net, cuda, root_tensor, calib_tensor, num_sample=100, hair_unit=0.006)
-    save_strands_with_sdf(strands, sdf, save_path, 0.3)
+    save_strands_with_sdf(strands, sdf, save_path, render_path, 0.3)

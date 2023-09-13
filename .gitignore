@@ -5,9 +5,9 @@ __pycache__/
 
 # C extensions
 *.so
-
 *.png
 *.npy
+*.render
 
 # Distribution / packaging
 .Python
